@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clojure Spec</title>
+
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      ul, li {
+        list-style-type: none;
+        margin: 0;
+        padding: 5px 0;
+      }
+
+      p {
+        padding: 0 15px;
+      }
+    </style>
+
+</head>
+<body>
+
+  <h1>Clojure Spec — both more and less than a type system</h1>
+
+
+  <h2>What spec is</h2>
+
+  <h3>It's essentially a contract-test library, with a set of tools for:</h3>
+
+  <p>Describing the shape of data (something along the lines of what Schema does)</p>
+
+  <p>Validating data</p>
+
+  <p>Destructuring and adding context to data (more on that later)</p>
+
+  <p>"Instrumenting" functions and macros</p>
+
+  <p>Driving generative testing with <code>test.check</code>, by providing a lot of the generators for free</p>
+
+
+  <h2>What spec isn't</h2>
+
+  <p><em>A type system</em></p>
+
+  <p>For better or worse, Clojure is dynamic.</p>
+
+  <p>specs are checked at runtime, not compile-time (although you use most of it in dev only, so not that much overhead)</p>
+
+  <p><strong>Benefits:</strong> You can iterate quickly and flexibly and you have a lot of power to do what you want with the reduced syntax and the few simple datatypes that you recombine and compose throughout your code.</p>
+
+  <p><strong>Drawbacks:</strong> No types, with all that that entails. You have to apply your own discipline. </p>
+
+  <p>spec is an attempt to help you with that discipline, without enforcing that you ever use it.</p>
+
+  <h2>The dream</h2>
+
+  <p>The ultimate goal with spec (I think) is that you can apply as much of a type system as you want in cases where it makes sense
+
+  <p>You can even apply more restrictions than a type system would in a case where you might want to have more to say about a function signature than <code>Int -> Int</code>)</p>
+
+  <p>And you can dispense with it when it would just get in the way.</p>
+
+  <p>In any case, it's an interesting precedent for how a dynamic language might handle these issues.</p>
+
+
+  <h2>Let's get to it:</h2>
+
+
+
+
+
+
+  <pre><code class="klipse">
+  (def a 6)
+  (def b 7)
+  (+ a b)
+  </code></pre>
+
+  <ul class="resources">
+    <li><a href="https://clojure.org/guides/spec">The Clojure spec Guide</a></li>
+    <li><a href="https://clojure.org/about/spec">The Clojure spec Rationale</a></li>
+    <li><a href="https://clojure.github.io/clojure/branch-master/clojure.spec-api.html">The Clojure spec Docs</a></li>
+    <li><a href="https://vimeo.com/195711510">The obligatory Rich Hickey talk</a></li>
+    <li><a href="http://arnebrasseur.net/talks/2016-clojutre/">A suspiciously familiar slide deck</a></li>
+    <li><a href="https://github.com/mfikes/planck">Planck</a> — the absolute quickest way to get up and running with Clojure(Script) and spec and a repl</li>
+    <li>And thanks to <a href="https://github.com/gnab/remark">remark.js</a> for some of their styles, although I abandoned all the slide functionality</li>
+  </ul>
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+
+  <script>
+      window.klipse_settings = {
+          selector: '.klipse',
+          codemirror_options_in: {
+              lineWrapping: true,
+              autoCloseBrackets: true
+          }
+      }
+  </script>
+  <script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script>
+
+</body>
+</html>

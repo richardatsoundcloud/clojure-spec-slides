@@ -13,6 +13,7 @@
       h1, h2, h3 {
         font-family: 'Yanone Kaffeesatz';
         font-weight: normal;
+        padding: 10px 0 0;
       }
       .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
       ul, li {
@@ -24,6 +25,17 @@
       p {
         padding: 0 15px;
       }
+
+      p:first-child {
+        margin-top: 0;
+      }
+
+      .codealong p {
+        padding-left: 0;
+        padding-top: 15px;
+      }
+
+
     </style>
 
 </head>
@@ -34,56 +46,209 @@
 
   <h2>What spec is</h2>
 
-  <h3>It's essentially a contract-test library, with a set of tools for:</h3>
+  <h3>It's essentially a contract-test library, with a set of tools</h3>
 
-  <p>Describing the shape of data (something along the lines of what Schema does)</p>
+  <div class="content">
 
-  <p>Validating data</p>
+    <p>Describes the shape of data declaratively (something along the lines of what Schema does)</p>
 
-  <p>Destructuring and adding context to data (more on that later)</p>
+    <p>Makes heavy use of existing predicates</p>
 
-  <p>"Instrumenting" functions and macros</p>
+    <p>Validates data</p>
 
-  <p>Driving generative testing with <code>test.check</code>, by providing a lot of the generators for free</p>
+    <p>Destructures and adds context to data (more on that later)</p>
+
+    <p>"Instruments" functions and macros</p>
+
+    <p>Drives generative testing with <code>test.check</code>, by providing a lot of the generators for free</p>
+
+  </div>
+
 
 
   <h2>What spec isn't</h2>
 
-  <p><em>A type system</em></p>
+  <div class="content">
 
-  <p>For better or worse, Clojure is dynamic.</p>
+    <p><em>A type system</em></p>
 
-  <p>specs are checked at runtime, not compile-time (although you use most of it in dev only, so not that much overhead)</p>
+    <p>For better or worse, Clojure is dynamic.</p>
 
-  <p><strong>Benefits:</strong> You can iterate quickly and flexibly and you have a lot of power to do what you want with the reduced syntax and the few simple datatypes that you recombine and compose throughout your code.</p>
+    <p>specs are checked at runtime, not compile-time (although you use most of it in dev only, so not that much overhead)</p>
 
-  <p><strong>Drawbacks:</strong> No types, with all that that entails. You have to apply your own discipline. </p>
+    <p><strong>Benefits:</strong> You can iterate quickly and flexibly and you have a lot of power to do what you want with the reduced syntax and the few simple datatypes that you recombine and compose throughout your code.</p>
 
-  <p>spec is an attempt to help you with that discipline, without enforcing that you ever use it.</p>
+    <p><strong>Drawbacks:</strong> Types not checked at compile time, with all that that entails. You have to apply your own discipline. </p>
+
+    <p>spec is an attempt to help you with that discipline, without enforcing that you ever use it.</p>
+
+  </div>
+
+
 
   <h2>The dream</h2>
 
-  <p>The ultimate goal with spec (I think) is that you can apply as much of a type system as you want in cases where it makes sense
+  <div class="content">
 
-  <p>You can even apply more restrictions than a type system would in a case where you might want to have more to say about a function signature than <code>Int -> Int</code>)</p>
+    <p>One of the ultimate goals with spec is that you can apply as much of a type system as you want in cases where it makes sense
 
-  <p>And you can dispense with it when it would just get in the way.</p>
+    <p>You can even apply more restrictions than a type system would in a case where you might want to have more to say about a function signature than <code>Int -> Int</code></p>
 
-  <p>In any case, it's an interesting precedent for how a dynamic language might handle these issues.</p>
+    <p>And you can dispense with it when it would just get in the way.</p>
+
+    <p>In any case, it's an interesting precedent for how a dynamic language might handle these issues.</p>
+
+  </div>
+
 
 
   <h2>Let's get to it:</h2>
 
+  <div class="codealong">
 
 
+    <pre><code class="klipse">
+    ;; require the spec namespace and give it an alias
+
+    (require '[cljs.spec :as s])
+    </code></pre>
 
 
+    <p>specs can be built-in predicates:</p>
 
-  <pre><code class="klipse">
-  (def a 6)
-  (def b 7)
-  (+ a b)
-  </code></pre>
+    <pre><code class="klipse">
+    ;; This is a spec: int?
+
+    (s/valid? int? 76)
+    </code></pre>
+
+
+    <p>specs can be custom predicates:</p>
+
+    <pre><code class="klipse">
+    ;; This is a spec: (fn [n] (< n 100))
+
+    (s/valid? (fn [n] (< n 100)) 76)
+    </code></pre>
+
+
+    <p>They can also be composed:</p>
+
+    <pre><code class="klipse">
+    ;; This is also a spec: (s/and int? even? (fn [n] (< n 100)))
+
+    (s/valid? (s/and int? even? (fn [n] (< n 100))) 76)
+    </code></pre>
+
+
+    <p><code>s/explain</code> (in all of its forms) will tell you which part of your spec failed:</p>
+
+    <pre><code class="klipse">
+    ;; s/explain, s/explain-str, s/explain-data
+
+    (s/explain (s/and int? even? (fn [n] (< n 100))) 75)
+    </code></pre>
+
+
+    <p>Specs can also be identified by keywords -- fully qualified keywords with namespaces, so they can function as a global registry of specs:</p>
+
+    <pre><code class="klipse">
+    ;; This is also a spec: :fun-with-math/reasonably-sized
+
+    (s/def :fun-with-math/reasonably-sized (fn [n] (< n 100)))
+    (s/valid? :fun-with-math/reasonably-sized 75)
+    </code></pre>
+
+
+    <p>And composed:</p>
+
+    <pre><code class="klipse">
+    (s/def :fun-with-math/tiny-even-int (s/and int? even? :fun-with-math/reasonably-sized))
+    (s/explain :fun-with-math/tiny-even-int 76)
+    </code></pre>
+
+  </div>
+
+  <h2>(Quick aside on fully qualified keywords)</h2>
+
+  <div class="content">
+
+    <p>Keywords are unique identifiers. They start with colons, like symbols in Ruby:</p>
+
+    <p>Fully qualified keywords are two words separated by a slash - the first part is the name of a namespace, like a module in JavaScript or (sort of) like a class in Java or Ruby.</p>
+
+  </div>
+
+  <div class="codealong">
+
+    <p>An unqualified keyword (sadly got thumbs-downs all around at the hiring sync):</p>
+
+    <pre><code class="klipse">
+    :hi-there
+    </code></pre>
+
+    <p>A more qualified keyword (we hope she decides to work here):</p>
+
+    <pre><code class="klipse">
+    :my-namespace/hi-there
+    </code></pre>
+
+  </div>
+
+  <div class="content">
+
+    <p>(Note: The namespace itself doesn't have to be loaded, or even to exist, in order for you to reference a fully-qualified keyword)</p>
+
+    <p>Keywords are often used as the keys in maps. Fully qualified ones help to avoid data collisions, as in the map <code>{:http/method :get, :cooking/method :bake}</code>.</p>
+
+    <p>The stress on the use of fully-qualified keywords as keys in maps that get validated by specs is one of the more controversial parts of Clojure spec. We'll get to that later.</p>
+
+  </div>
+
+  <div class="codealong">
+
+
+  </div>
+
+  <h2>Now for some actual nested data structures</h2>
+
+  <div class="codealong">
+
+    <p>A recipe:</p>
+
+    <pre><code class="klipse">
+    (def tomato-sauce-recipe
+      {:cooking/ingredients [[250 :g "peeled tomatoes"]
+                             [3 :clove "garlic"]
+                             [5 :g "pepper"]]
+       :cooking/steps ["heat a pan"
+                       "throw everything in"
+                       "stir"]})
+    tomato-sauce-recipe
+    </code></pre>
+
+    <p>And a spec to go along with it:</p>
+
+    <pre><code class="klipse">
+    (s/def :cooking/recipe (s/keys :req [:cooking/ingredients]
+                                   :opt [:cooking/steps]))
+
+    (s/def :cooking/ingredients (s/coll-of :cooking/ingredient :kind sequential?))
+
+    (s/def :cooking/ingredient (s/cat :amount number?
+                                      :unit   keyword?
+                                      :name   string?))
+
+    (s/def :cooking/steps (s/coll-of string? :kind sequential?))
+
+    (s/valid? :cooking/recipe tomato-sauce-recipe)
+
+    </code></pre>
+
+  </div>
+
+
+  <h1>Resources</h1>
 
   <ul class="resources">
     <li><a href="https://clojure.org/guides/spec">The Clojure spec Guide</a></li>
@@ -92,7 +257,8 @@
     <li><a href="https://vimeo.com/195711510">The obligatory Rich Hickey talk</a></li>
     <li><a href="http://arnebrasseur.net/talks/2016-clojutre/">A suspiciously familiar slide deck</a></li>
     <li><a href="https://github.com/mfikes/planck">Planck</a> — the absolute quickest way to get up and running with Clojure(Script) and spec and a repl</li>
-    <li>And thanks to <a href="https://github.com/gnab/remark">remark.js</a> for some of their styles, although I abandoned all the slide functionality</li>
+    <li>And thanks to <a href="https://github.com/gnab/remark">remark.js</a> for some of their headline styles, although I abandoned all the slide functionality</li>
+    <li>Last but not least, hats off to <a href="https://github.com/viebel/klipse">Klipse</a> for its awesome and easy-to-set-up inline coding. Works with a whole bunch of dynamically typed languages and, strangely, C++.</li>
   </ul>
 
 
@@ -110,6 +276,8 @@
       }
   </script>
   <script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script>
+
+
 
 </body>
 </html>

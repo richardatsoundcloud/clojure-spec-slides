@@ -9,7 +9,10 @@
       @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
       @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
 
-      body { font-family: 'Droid Serif'; }
+      body {
+        font-family: 'Droid Serif';
+        margin: 0 40px 40px 40px;
+      }
       h1, h2, h3 {
         font-family: 'Yanone Kaffeesatz';
         font-weight: normal;
@@ -17,7 +20,8 @@
       }
       h1 {
         font-size: 4em;
-        margin-bottom: 35px;
+        margin-top: 45px;
+        margin-bottom: 45px;
       }
       h2 {
         font-size: 2.5em;
@@ -25,7 +29,7 @@
       }
       h3 {
         font-size: 1.8em;
-        margin-bottom: 15px;
+        margin-bottom: 25px;
       }
       section {
         margin-bottom: 45px;
@@ -46,15 +50,19 @@
       }
 
       p {
-        margin: 0 15px 15px;
+        margin: 0 15px 20px;
       }
 
       .codealong p {
         margin-left: 0;
       }
 
-      pre {
-        margin-bottom: 25px;
+      pre.klipse-wrapper {
+        margin-bottom: 35px;
+      }
+
+      .CodeMirror-code {
+        padding: 7px;
       }
 
 
@@ -133,7 +141,7 @@
     <div class="codealong">
 
 
-      <pre><code class="klipse">
+      <pre class="klipse-wrapper"><code class="klipse">
       ;; require the spec namespace and give it an alias
 
       (require '[cljs.spec :as s])
@@ -142,7 +150,7 @@
 
       <p>specs can be built-in predicates:</p>
 
-      <pre><code class="klipse">
+      <pre class="klipse-wrapper"><code class="klipse">
       ;; This is a spec: int?
 
       (s/valid? int? 76)
@@ -151,7 +159,7 @@
 
       <p>specs can be custom predicates:</p>
 
-      <pre><code class="klipse">
+      <pre class="klipse-wrapper"><code class="klipse">
       ;; This is a spec: (fn [n] (< n 100))
 
       (s/valid? (fn [n] (< n 100)) 76)
@@ -160,7 +168,7 @@
 
       <p>They can also be composed using one of a small set of provided macros, like <code>s/and</code>:</p>
 
-      <pre><code class="klipse">
+      <pre class="klipse-wrapper"><code class="klipse">
       ;; This is also a spec: (s/and int? even? (fn [n] (< n 100)))
 
       (s/valid? (s/and int? even? (fn [n] (< n 100))) 76)
@@ -169,7 +177,7 @@
 
       <p><code>s/explain</code> (in all of its forms) will tell you which part of your spec failed:</p>
 
-      <pre><code class="klipse">
+      <pre class="klipse-wrapper"><code class="klipse">
       ;; s/explain, s/explain-str, s/explain-data
 
       (s/explain (s/and int? even? (fn [n] (< n 100))) 75)
@@ -178,7 +186,7 @@
 
       <p>Specs can also be identified by keywords -- fully qualified keywords with namespaces, so they can function as a global registry of specs:</p>
 
-      <pre><code class="klipse">
+      <pre class="klipse-wrapper"><code class="klipse">
       ;; This is also a spec: :fun-with-math/reasonably-sized
 
       (s/def :fun-with-math/reasonably-sized (fn [n] (< n 100)))
@@ -188,7 +196,7 @@
 
       <p>And composed:</p>
 
-      <pre><code class="klipse">
+      <pre class="klipse-wrapper"><code class="klipse">
       (s/def :fun-with-math/tiny-even-int (s/and int? even? :fun-with-math/reasonably-sized))
       (s/explain :fun-with-math/tiny-even-int 76)
       </code></pre>
@@ -212,13 +220,13 @@
 
       <p>An unqualified keyword (sadly got thumbs-downs all around at the hiring sync):</p>
 
-      <pre><code class="klipse">
+      <pre class="klipse-wrapper"><code class="klipse">
       :hi-there
       </code></pre>
 
       <p>A more qualified keyword (we hope she decides to work here):</p>
 
-      <pre><code class="klipse">
+      <pre class="klipse-wrapper"><code class="klipse">
       :my-namespace/hi-there
       </code></pre>
 
@@ -260,7 +268,7 @@
 
       <p>A recipe:</p>
 
-      <pre><code class="klipse">
+      <pre class="klipse-wrapper"><code class="klipse">
       (def tomato-sauce-recipe
         {:cooking/ingredients [[250 :g "peeled tomatoes"]
                                [3 :clove "garlic"]
@@ -273,7 +281,7 @@
 
       <p>And some specs to go along with it:</p>
 
-      <pre><code class="klipse">
+      <pre class="klipse-wrapper"><code class="klipse">
       (s/def :cooking/recipe (s/keys :req [:cooking/ingredients]
                                      :opt [:cooking/steps]))
 
@@ -289,15 +297,14 @@
 
       </code></pre>
 
-      <!--  TODO: go over that piece by piece
-             show conform, try to kind of explain it
-             show generators
-             show function specs and instrumenting
-             show actual property-based testing
-             get that slide from Stu Halloway's talk about the benefits of spec
-             show the ways that you'd actually get started with this, at the end
+      <p>The data destructuring and enhancing feature, which is used in many ways throughout spec: <code>conform</code></p>
 
-             -->
+      <pre class="klipse-wrapper"><code class="klipse">
+      (s/conform :cooking/recipe tomato-sauce-recipe)
+
+      </code></pre>
+
+
 
     </div>
 
@@ -314,17 +321,17 @@
 
       <p>For homogeneous collections of arbitrary size - takes constraining parameters:</p>
 
-        <pre><code class="klipse">
+        <pre class="klipse-wrapper"><code class="klipse">
         ;; #{} and #{4 5 6} are sets in Clojure.
 
         (s/explain (s/coll-of string?) #{"a" "b" "c"})
         </code></pre>
 
-        <pre><code class="klipse">
+        <pre class="klipse-wrapper"><code class="klipse">
         (s/explain (s/coll-of string? :min-count 2) #{"a" "b" "c"})
         </code></pre>
 
-        <pre><code class="klipse">
+        <pre class="klipse-wrapper"><code class="klipse">
         (s/explain (s/coll-of string? :kind sequential?) ["a" "b" "c"])
         </code></pre>
 
@@ -340,7 +347,7 @@
 
         <p>For heterogeneous tuples where order is semantically important (argument lists, etc.):</p>
 
-        <pre><code class="klipse">
+        <pre class="klipse-wrapper"><code class="klipse">
         (s/explain (s/cat :first-name string? :last-name string? :defining-feature keyword?)
                    ["Richard" "Harrington" :shiny])
         </code></pre>
@@ -362,7 +369,7 @@
 
         <p>Takes a required and an optional sequence of required fully-qualified keywords <strong>which are registered as specs and are also the key names in the map that is being validated</strong>.</p>
 
-        <pre><code class="klipse">
+        <pre class="klipse-wrapper"><code class="klipse">
         (s/def :people/first-name string?)
         (s/def :people/last-name string?)
         (s/def :people/middle-name string?)
@@ -376,36 +383,114 @@
 
         </code></pre>
 
-        <p>Note that the <code>:opt</code> list is just for documentation, as far as I know. spec will run a check on every value it finds whose key is a registered spec:</p>
+        <p>Note that the <code>:opt</code> list is just for documentation and for use in creating test cases in generative tests. spec will run a check on every value it finds whose key is a registered spec, whether it was listed in <code>:opt</code> or not:</p>
 
-        <pre><code class="klipse">
+        <pre class="klipse-wrapper"><code class="klipse">
         (s/explain :people/full-name {:people/first-name "Richard"
                                       :people/last-name "Harrington"
                                       :fun-with-math/tiny-even-int 9})
 
         </code></pre>
 
+      </div>
 
+      <div class="content">
+        <p>This is a little controversial. The justification for it is, according to Rich Hickey (the author of Clojure), </p>
+        <blockquote>"Most systems for specifying structures conflate the specification of the key set with the specification of the values designated by those keys. This is a major source of rigidity and redundancy."
+        </blockquote>
 
+        <p>That may be the case, but the fact is, very few people currently use namespaced keywords for their map keys. This library pushes people hard in the direction of their use, but in the meantime, there's an alternate way to declare keyset specs, <code>req-un</code> and <code>opt-un</code>.</p>
 
+      </div>
 
-       (s/def :people/first-name string?)
-       (s/def :people/last-name string?)
-       (s/def :people/middle-name string?)
+    </section>
+    <section class="subsection">
 
-       (s/def :people/full-name (s/keys :req [:people/first-name :people/last-name]
-                                        :opt [:people/middle-initial]))
+      <div class="codealong">
+        <p>When using these variants, namespaced keys are used to look up the specs, but the keys in the map may be unqualified keywords:</p>
 
-       (s/explain :people/full-name {:people/first-name "Richard"
-                                     :people/middle-initial "T"
-                                     :fun-with-math/tiny-even-int 9
-                                     :people/last-name "Harrington"})
+        <pre class="klipse-wrapper"><code class="klipse">
+        (s/def :people/full-name-un (s/keys :req-un [:people/first-name :people/last-name]
+                                            :opt-un [:people/middle-name]))
+
+        (s/explain :people/full-name-un {:first-name "Richard"
+                                         :middle-initial "T"
+                                         :last-name "Harrington"})
+
+        </code></pre>
 
       </div>
 
     </section>
 
+    <section>
+      <h2>Generation!</h2>
+
+      <div class="codealong">
+        <p>We're not going to go too much into spec's generative testing features through integration with <code>test.check</code>, but here's a taste.</p>
+
+        <p>Each example is a two-part vector with the generated test case, and the conformed version:</p>
+
+        <pre class="klipse-wrapper"><code class="klipse">
+        (s/exercise int? 5)
+
+        </code></pre>
+
+        <pre class="klipse-wrapper"><code class="klipse">
+        (s/exercise :people/full-name 5)
+
+        </code></pre>
+
+        <pre class="klipse-wrapper"><code class="klipse">
+        (s/exercise :cooking/recipe 5)
+
+        </code></pre>
+
+      </div>
+
+    </section>
+
+    <section>
+      <h2>Things we probably won't get to today</h2>
+
+      <p>Function specs</p>
+      <p>Instrumenting of functions</p>
+      <p>Running property-based tests</p>
+    </section>
+
+
+    <!--  TODO: go over that piece by piece
+           show function specs and instrumenting
+           show actual property-based testing
+           get that slide from Stu Halloway's talk about the benefits of spec
+           show the ways that you'd actually get started with this, at the end
+
+           -->
+
+
+
   </section>
+
+  <h2>Actually getting started:</h2>
+
+  <p>ClojureScript is easier, because spec is included in the most recent stable release. Just get a repl going and type</p>
+
+  <pre><code>(require '[cljs.spec :as s])</code></pre>
+
+  <p>and you're all set to go.</p>
+
+  <p>The best way to get started immediately with ClojureScript (and the Clojure family in general) is to use the Planck repl, in the resources below. It boots up a ClojureScript repl in half a second, making use of the Mac OS X's existing JavaScriptCore engine.</p>
+
+  <p>If you are using Clojure and leiningen, keep in mind that the most recent stable release of Clojure does NOT have spec, so if you generate a default project you'll have to go into the <code>project.clj</code> and change the Clojure version by adding this to your dependencies:</p>
+
+  <pre><code>:dependencies [[org.clojure/clojure "1.9.0-alpha15"]]</code></pre>
+
+  <p>Then, in your files where you want to use spec:</p>
+
+  <pre><code>(require '[clojure.spec :as s])</code></pre>
+
+
+
 
 
   <h1>Resources</h1>
